@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegrambot-deployment
+  labels:
+    app: telegrambot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegrambot
+  template:
+    metadata:
+      labels:
+        app: telegrambot
+    spec:
+      containers:
+        - name: telegrambot
+          image: freshr/telegram-bot
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: telegrambot-config
+                  key: mysql-database-name
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: telegrambot-config
+                  key: mysql-host
+            - name: MYSQL_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: telegrambot-config
+                  key: mysql-user-username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: telegrambot-secret
+                  key: mysql-user-password
+            - name: TELEGRAN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: telegrambot-secret
+                  key: telegram-token
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegrambot-service
+spec:
+  type: NodePort
+  selector:
+    app: telegrambot
+  ports:
+    - protocol: TCP
+      name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30000

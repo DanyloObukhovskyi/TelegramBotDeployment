@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegrambot-config
+  labels:
+    app: telegrambot
+data:
+  mysql-database-name: telegramcurrency
+  mysql-user-username: telegram
+  mysql-host: mysql-service
